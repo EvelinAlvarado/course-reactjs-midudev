@@ -1,36 +1,10 @@
 import { useState } from "react";
 import "./App.css";
-
-// Constant 'TURNS' represents player turns: 'X' maps to 'x', and 'O' maps to 'o'.
-const TURNS = {
-  X: "x",
-  O: "o",
-};
-
-const Square = ({ children, isSelected, updateBoard, index }) => {
-  const className = `square ${isSelected ? "is-selected" : ""}`;
-
-  const handleClick = () => {
-    updateBoard(index);
-  };
-
-  return (
-    <div onClick={handleClick} className={className}>
-      {children}
-    </div>
-  );
-};
-
-const WINNER_COMBOS = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6],
-];
+import confetti from "canvas-confetti";
+import { Square } from "./components/Square.jsx";
+import { TURNS } from "./constants.js";
+import { checkWinnerFrom, checkEndGame } from "./logic/board.js";
+import { WinnerModal } from "./components/WinnerModal.jsx";
 
 function App() {
   // State hook to manage the game board with 'board' representing the current state and 'setBoard' for updating it. The board is initially created with 9 empty squares (null).
@@ -45,31 +19,11 @@ function App() {
   // Null means no winner, while false signifies a draw.
   const [winner, setWinner] = useState(null);
 
-  const checkWinner = (boardToCheck) => {
-    for (const combo of WINNER_COMBOS) {
-      const [a, b, c] = combo;
-      if (
-        boardToCheck[a] &&
-        boardToCheck[a] === boardToCheck[b] &&
-        boardToCheck[a] === boardToCheck[c]
-      ) {
-        return boardToCheck[a];
-      }
-    }
-    // null=no winner
-    return null;
-  };
-
   // Reset the game
   const resetGame = () => {
     setBoard(Array(9).fill(null));
     setTurn(TURNS.X);
     setWinner(null);
-  };
-
-  // Check if the game has ended by examining whether every square on the board is filled.
-  const checkEndGame = (newBoard) => {
-    return newBoard.every((square) => square !== null);
   };
 
   // Function to update the game board when a square is clicked.
@@ -90,9 +44,10 @@ function App() {
     setTurn(newTurn);
 
     // Check for a winner on the updated board.
-    const newWinner = checkWinner(newBoard);
+    const newWinner = checkWinnerFrom(newBoard);
     // If there is a winner, update the winner state.
     if (newWinner) {
+      confetti();
       setWinner(newWinner);
     } else if (checkEndGame(newBoard)) {
       // If there is no winner but the game has ended (draw), set the winner state to false.
@@ -113,32 +68,14 @@ function App() {
           );
         })}
       </section>
+
       {/* Display squares for 'X' and 'O' player turns, highlighting the current turn. */}
       <section className="turn">
         <Square isSelected={turn === TURNS.X}>{TURNS.X}</Square>
         <Square isSelected={turn === TURNS.O}>{TURNS.O}</Square>
       </section>
 
-      {/* 
-        Render the winner section only if there is a winner or a draw.
-        The expression `{winner !== null && ...}` checks if 'winner' is not null, 
-        and if true, it renders the content inside the parentheses.
-      */}
-      {winner !== null && (
-        <section className="winner">
-          <div className="text">
-            <h2>{winner === false ? "Draw" : "Winner:"}</h2>
-
-            <header className="win">
-              {winner && <Square>{winner}</Square>}
-            </header>
-
-            <footer>
-              <button onClick={resetGame}>Start again!</button>
-            </footer>
-          </div>
-        </section>
-      )}
+      <WinnerModal resetGame={resetGame} winner={winner} />
     </main>
   );
 }
