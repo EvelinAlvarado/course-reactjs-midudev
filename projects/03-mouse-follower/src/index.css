@@ -45,6 +45,7 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
+  color: rgba(255, 255, 255, 0.87);
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
@@ -57,7 +58,7 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: dark light) {
   :root {
     color: #213547;
     background-color: #ffffff;
