@@ -48,6 +48,17 @@ const FollowMouse = () => {
     // Dependency array: Effect depends on the 'enabled' state.
   }, [enabled]);
 
+  // useEffect to toggle the "no-cursor" class on the body element based on the 'enabled' state.
+  useEffect(() => {
+    // Toggle the "no-cursor" class on the body when 'enabled' changes
+    document.body.classList.toggle("no-cursor", enabled);
+
+    // Cleanup: Remove the "no-cursor" class when the component is unmounted or 'enabled' changes
+    return () => {
+      document.body.classList.remove("no-cursor");
+    };
+  }, [enabled]);
+
   return (
     <>
       {/* Circle element to represent the mouse pointer */}
